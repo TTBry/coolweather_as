@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.litepal.crud.DataSupport;
 
@@ -105,6 +106,7 @@ public class ChooseAreaFragment extends Fragment {
                 }
             }
         });
+        queryProvinces();
     }
     /**
      * 查询全国所有的省，优先从数据库查询，如果没有查询到再去服务器上查询
@@ -197,6 +199,13 @@ public class ChooseAreaFragment extends Fragment {
                         @Override
                         public void run() {
                             closeProgressDialog();
+                            if("province".equals(type)){
+                                queryProvinces();
+                            }else if("city".equals(type)){
+                                queryCities();
+                            }else if("country".equals(type)){
+                                queryCountries();
+                            }
                         }
                     });
                 }
@@ -204,16 +213,35 @@ public class ChooseAreaFragment extends Fragment {
 
             @Override
             public void onFailure(Call call, IOException e) {
-
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
 
+    /**
+     * 显示进度对话框
+     */
     private void showProgressDialog(){
-
+        if(progressDialog == null){
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("正在加载...");
+            progressDialog.setCancelable(false);
+        }
+        progressDialog.show();
     }
 
+    /**
+     * 关闭进度对话框
+     */
     private void closeProgressDialog(){
-
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
     }
 }
